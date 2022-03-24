@@ -29,7 +29,7 @@ public struct InputData
 
         //Extra Movement
         dash = Input.GetKey(KeyCode.LeftShift);
-        walk= Input.GetKeyDown(KeyCode.LeftShift);
+        walk= Input.GetKeyDown(KeyCode.LeftAlt);
         jump = Input.GetButtonDown("Jump");
     }
 }

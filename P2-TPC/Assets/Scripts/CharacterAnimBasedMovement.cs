@@ -16,6 +16,10 @@ public class CharacterAnimBasedMovement : MonoBehaviour
     public string motionParam = "motion";
     public string mirrorIdleParam = "mirrorIdle";
     public string turn180Param = "turn180";
+    public string jumpParam = "jump";
+    public string idleParam = "idle_bool";
+    public string idletypeParam = "idle_type";
+    public string stairParam = "stairs";
 
     [Header("Animation Smoothing")]
     [Range(0, 1f)]
@@ -23,7 +27,7 @@ public class CharacterAnimBasedMovement : MonoBehaviour
     [Range(0, 1f)]
     public float StopAnimTime = 0.15f;
 
-    private Ray wallRay=new Ray();
+
     public float Speed;
     private Vector3 desiredMoveDirection;
     private CharacterController characterController;
@@ -32,11 +36,40 @@ public class CharacterAnimBasedMovement : MonoBehaviour
     private bool turn180;
     public bool speedlimiter;
 
+    private float LastInputTime;
+    private float IdleTimeSet=5f;
+    public float RandomIdleType;
+
     // Start is called before the first frame update
     void Start()
     {
         characterController=GetComponent<CharacterController>();
         animator=GetComponent<Animator>();
+
+        LastInputTime = Time.time;
+        RandomIdle();
+        
+    }
+    private void Update()
+    {
+        //Reset Idle Timer if any key is pressed at any time
+        if (Input.anyKey)
+        {
+            RandomIdle();
+            LastInputTime = Time.time;
+            animator.SetBool(idleParam,false);
+            
+        }
+        if(Time.time - LastInputTime > IdleTimeSet)
+        {
+            animator.SetFloat(idletypeParam, RandomIdleType);
+            animator.SetBool(idleParam,true);
+
+        }
+    }
+    private void RandomIdle()
+    {
+        RandomIdleType = UnityEngine.Random.Range(0, 3);
     }
 
     public void moveCharacter(float hInput, float vInput, Camera cam, bool jump, bool dash, bool walk)
@@ -103,6 +136,9 @@ public class CharacterAnimBasedMovement : MonoBehaviour
             animator.SetBool(mirrorIdleParam, mirrorIdle);
             animator.SetFloat(motionParam, Speed, StopAnimTime, Time.deltaTime);
         }
+        //Jump motion
+            animator.SetBool(jumpParam, jump);
+
     }
     private void OnAnimatorIK(int layerIndex)
     {
@@ -120,6 +156,21 @@ public class CharacterAnimBasedMovement : MonoBehaviour
         else
         {
             mirrorIdle = false;
+        }
+    }
+    private void OnTriggerStay(Collider collider)
+    {
+        if (collider.tag == "stairs")
+        {
+            Speed = Speed * 2;
+            animator.SetBool(stairParam, true);
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.tag == "stairs")
+        {
+            animator.SetBool(stairParam, false);
         }
     }
 }

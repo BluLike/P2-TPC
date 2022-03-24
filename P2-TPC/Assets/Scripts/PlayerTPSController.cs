@@ -8,10 +8,13 @@ public class PlayerTPSController : MonoBehaviour
     private InputData input;
     private CharacterAnimBasedMovement characterMovement;
 
+
+
     // Start is called before the first frame update
     void Start()
     {
         characterMovement = GetComponent<CharacterAnimBasedMovement>();
+
     }
 
     // Update is called once per frame
